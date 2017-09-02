@@ -1,43 +1,3 @@
-/*
-L6470の基本的な使い方を知る
- 
-参考資料
-SPI通信について：Arduino日本語リファレンスhttp://www.musashinodenpa.com/arduino/ref/index.php?f=1，http://www.wdic.org/w/SCI/SPI
-L6470 取扱説明書等：http://akizukidenshi.com/catalog/g/gK-07024/，データシート和訳 http://spinelify.blog.fc2.com/blog-entry-79.html
-
- Master: Arduino
- Slave: L6470 Driver
-
- Adruino (Master)
-
-11: MOSI // Master Out Slave In : マスタからスレーブへデータを送るライン
-12: MISO // Master In Slave Out : スレーブからマスタへデータを送るライン
-13: SCK //Serial Clock : データ転送を同期させるため、マスタより生成されるクロック信号
-10: SS // Slave Serect pin : スレーブを選択する．LOWのときマスタとの通信が有効になる．HIGHのときマスタからのデータを無視する．
-
- L6470 (Slave)
-
- <SPI>
- 5: SDO // SPI Data Out (Logic output)
- 6: CK // SPI Clock (Logic input)
- 7: SDI // SPI Data In (Logic input)
- 8: #CS // SPI Chip Serect (= Slave Srect, Logic input) , 負論理
-
- <other> 
- 1: #BUSY/SYNC // (Open drain out put) 
- - used ad busy frag (SYNC_EN bitがLOW(0)のとき, defalut) : 
-        デフォルトの状態では，コマンド実行中はLOWになる．
-        一定速度コマンド，絶対位置指定コマンド，移動コマンドが実行中の時、ピン出力がLOW
-        コマンドが実行されたとき（目標速度、目標座標に到達），このBUSYピンは解放される                                                
- - used as synchronization signal (SYNC_EN bitがHIGHのとき) :   
-        このモードでのステップクロック信号は、SYNC_SEL と STEP_SEL パラメータの組み合わせに応じて出力される
- 2: FRAG // Status Frag (Open Drain output) : 内部のオープンドレイントランジスタによって，アラーム発生時にFRAGピンをGNDに接続する．
- 3: GND // ground
- 4: EXT-VDD // External-VDD (Power) : ロジック出力ピンの電圧範囲を設定．VDDpinは内部でVregまたは3.3V電源に接続されていない．
- 9: STCK // Step-clock Input (Logic input) : Step-clock mode時に入力された信号によって，モータの動きが定義される
- 10: #STBY/#RST // Stepby and Reset (Logic input) : LOW logic level  -> logicをリセット，デバイスをスタンバイモードに．使わない場合はVDDにつなげておく
-*/
-
 #include <SPI.h>
 
 #define PIN_SPI_MOSI 11 // Master Out Slave In 
@@ -80,10 +40,10 @@ void setup() {
 
         // 目標速度に達した後に回転時間を指定
         while(!digitalRead(PIN_BUSY)){}
-        delay(1000);
+        delay(10000);
 
         // モータの停止
-        int stopCmd = 4;
+        int stopCmd = 2;
         if (stopCmd == 1){
                 // 減速あり、角度保持あり
                 L6470_softStop();                
@@ -254,7 +214,6 @@ void L6470_rpsRun( boolean dir, float rps , int m_step ){
         if ( dir == 0 ){
                 L6470_transfer(0x50, 3, spd);
         }
-
         // 計算の例
         // 毎秒0.5回転, 200 step/s
         // 200 [step/s] = ( SPEED × 2^-28 ) / ( 250 × 10^-9 ) 
