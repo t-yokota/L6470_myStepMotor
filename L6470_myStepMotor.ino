@@ -4,7 +4,7 @@
 #define PIN_SPI_MISO 12 // Master In Slave Out
 #define PIN_SPI_SCK 13 //Serial Clock
 #define PIN_SPI_SS 10 // Slave Serect pin
-#define PIN_BUSY 9 // busy mode
+#define PIN_BUSY 8 // busy mode
 
 void setup() {
  // put your setup code here, to run once:
@@ -26,12 +26,14 @@ void setup() {
         L6470_setup();
 
         //MAX_SPEEDの値を変更
+        /*
         L6470_send(0x07);
         L6470_send(0x01);
         L6470_send(0x89);        
-
+        */
+        /*
         // 目標速度rps[step/s]を指定して回転
-        L6470_rpsRun(0, 5, m_step);
+        L6470_rpsRun(0, 2, m_step);
         // ex)
         // L6470_send(0x51) or L6470_send(0x50)
         // L6470_send(0x0X);
@@ -40,7 +42,7 @@ void setup() {
 
         // 目標速度に達した後に回転時間を指定
         while(!digitalRead(PIN_BUSY)){}
-        delay(10000);
+        delay(5000);
 
         // モータの停止
         int stopCmd = 2;
@@ -57,6 +59,7 @@ void setup() {
                 // 減速なし、角度保持なし
                 L6470_hardHiZ();                
         }
+        */
 
         // MAX_SPEEDの指定
         //  L6470_rpsMaxSpeed(5, m_step); 上手く動かない
@@ -78,9 +81,9 @@ void setup() {
         L6470_send(0xD0);
         L6470_send(0x00);
         L6470_softStop();
-
+*/
         // ➁
-        long n_step = 51200;
+        long n_step = 51200/4;
         int data[3];
         for(int i = 0; i < 3; i++){
                 data[i] = n_step & 0xff;        
@@ -92,7 +95,6 @@ void setup() {
         L6470_send(data[1]);
         L6470_send(data[0]);        
         L6470_softHiZ();
-*/
  }
 
 void loop() {
